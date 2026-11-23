@@ -130,7 +130,7 @@
     </table>
     <div class="msg" id="accMsg" role="status"></div>
     <div class="note">
-      · 포털 로그인: 포털 계정(사용 중) 또는 대시보드·주간보고·모니터 계정 중 하나가 있으면 가능합니다. 포털 계정을 <b>사용 중지</b>하면 서비스 계정이 있어도 포털 로그인이 막힙니다.<br>
+      · 포털 로그인: 포털 계정(사용 중) 또는 대시보드·주간보고·모니터·세미나 관리자 계정 중 하나가 있으면 가능합니다. 포털 계정을 <b>사용 중지</b>하면 서비스 계정이 있어도 포털 로그인이 막힙니다.<br>
       · 제안서 생성기는 포털 로그인 사용자만 쓸 수 있습니다.<br>
       · 계정 정보(이메일·이름·소속)는 개인정보입니다. 외부 공유 전 사전 승인이 필요합니다.
     </div>
@@ -163,7 +163,7 @@
   var C = window.PORTAL_CONFIG, P = window.PortalSession;
   var $ = function (s) { return document.querySelector(s); };
   var pendingEmail = '', ME = null, ACC = [], editing = null;
-  var SVC_LABEL = { dash: '대시보드', monthly: '주간보고', ops: '모니터' };
+  var SVC_LABEL = { dash: '대시보드', monthly: '주간보고', ops: '모니터', seminar: '세미나' };
 
   function esc(v) { return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
   function msg(el, text, kind) { el.textContent = text || ''; el.className = 'msg' + (kind ? ' ' + kind : ''); }
@@ -233,6 +233,19 @@
     if (s.mode === 'open') { window.open(s.url, '_blank'); return; }
     var w = window.open('about:blank', '_blank');
     btn.disabled = true;
+    // 세미나 관리자(별도 Supabase): 포털 서버가 1회용 로그인 주소를 만들어 줌 (# 뒤 토큰, 관리자 화면이 읽자마자 삭제)
+    if (s.mode === 'seminar') {
+      P.call('handoff-seminar', {}).then(function (r) {
+        if (r.status === 401) throw Object.assign(new Error('login'), { status: 401 });
+        if (!r.ok || !r.json || !r.json.url) throw new Error((r.json && r.json.message) || ('요청 실패 ' + r.status));
+        if (w) w.location.href = r.json.url; else location.href = r.json.url;
+      }).catch(function (e) {
+        if (w) w.close();
+        if (e && e.status === 401) { P.save(null); showLogin(); return; }
+        msg($('#homeMsg'), s.name + ' 자동 로그인에 실패했습니다. 해당 사이트에서 직접 로그인해 주세요. (' + (e.message || '') + ')', 'err');
+      }).finally(function () { btn.disabled = false; });
+      return;
+    }
     // 2분짜리 개인 접근 토큰(PAT)을 넘기면 각 서비스가 자기 세션을 새로 발급 (포털 세션과 공유하지 않음)
     P.token().then(function (t) {
       var exp = new Date(Date.now() + C.handoffTtlSec * 1000).toISOString();
@@ -285,7 +298,7 @@
       var stopped = a.has_portal && !a.active;
       var role = !a.has_portal ? '<span class="b none">포털 계정 없음</span>' : '<span class="b ' + a.role + '">' + (a.role === 'admin' ? '관리자' : '일반') + '</span>';
       var state = stopped ? '<span class="b stop">사용 중지</span>' : '<span class="b on">로그인 가능</span>';
-      var svc = ['dash', 'monthly', 'ops'].filter(function (k) { return a[k]; }).map(function (k) { return '<span class="b s">' + SVC_LABEL[k] + '</span>'; }).join('') || '<span class="muted">-</span>';
+      var svc = ['dash', 'monthly', 'ops', 'seminar'].filter(function (k) { return a[k]; }).map(function (k) { return '<span class="b s">' + SVC_LABEL[k] + '</span>'; }).join('') || '<span class="muted">-</span>';
       var acts = a.has_portal
         ? '<button class="sbtn" data-act="edit" data-email="' + esc(a.email) + '">수정</button>' +
           '<button class="sbtn" data-act="toggle" data-email="' + esc(a.email) + '">' + (stopped ? '사용 재개' : '사용 중지') + '</button>' +
