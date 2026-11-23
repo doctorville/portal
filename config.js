@@ -8,5 +8,6 @@ window.PORTAL_CONFIG = {
     { key: 'dash', name: '닥터빌 · 팜빌 운영 대시보드', desc: '매출·회원·세미나·광고 지표', url: 'https://doctorville.github.io/doctorville_dash/', mode: 'nhost' },
     { key: 'monthly', name: '팀워크 · 주간 업무 보고', desc: '주간보고·목표·인수인계', url: 'https://doctorville.github.io/monthly/', mode: 'nhost' },
     { key: 'ops', name: '사업부 업무·위험 모니터', desc: '주요업무·KPI·위험신호·요약보고', url: 'https://doctorville-ops-monitor.vercel.app/', mode: 'ops' },
+    { key: 'seminar', name: '세미나 관리자', desc: '세미나 일정·신청 현황·진행업체·회원 관리', url: 'https://doctorville.github.io/doctorville-seminar/admin/', mode: 'seminar' },
   ],
 }
