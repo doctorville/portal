@@ -12,5 +12,6 @@ window.PORTAL_CONFIG = {
     { key: 'seminar', name: '세미나 관리자', desc: '세미나 일정·신청 현황·진행업체·회원 관리', url: 'https://doctorville.github.io/doctorville-seminar/admin/', mode: 'seminar' },
     // 외부 모듈: 아직 SSO 미연동 → 클릭 시 사이트 자체 로그인. 사이트에 POST /auth/portal 이 생기면 mode 를 'ops' 로 바꾸면 자동 로그인
     { key: 'ad', name: '광고 데이터', desc: '배너·광고 원본 데이터 리포트 (외부 모듈)', url: 'https://doctorville-ad-report.hamme.chatgpt.site/', mode: 'external' },
+    { key: 'monreport', name: '엠서클 월간 성과 보고', desc: '월간 성과 보고 통합 솔루션 (외부 사이트)', url: 'https://ax.mcircle.co.kr/monreport/login', mode: 'external' },
   ],
 }
