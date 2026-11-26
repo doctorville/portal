@@ -211,11 +211,11 @@
   function render(svc) {
     var g = $('#grid'); g.innerHTML = '';
     C.services.forEach(function (s) {
-      var on = s.mode === 'external' ? true : !!svc[s.key];
+      var on = (s.mode === 'external' || s.mode === 'post') ? true : !!svc[s.key];
       var el = document.createElement('div');
       el.className = 'svc' + (on ? '' : ' off');
       el.innerHTML = '<span class="tag"></span><h3></h3><p></p><button class="go"></button>';
-      el.querySelector('.tag').textContent = s.mode === 'open' ? '포털 로그인 사용자' : s.mode === 'external' ? '외부 모듈 · 별도 로그인' : (on ? '사용 가능' : '권한 없음');
+      el.querySelector('.tag').textContent = s.mode === 'open' ? '포털 로그인 사용자' : s.mode === 'external' ? '외부 모듈 · 별도 로그인' : s.mode === 'post' ? '등록 사용자 자동 로그인' : (on ? '사용 가능' : '권한 없음');
       el.querySelector('h3').textContent = s.name;
       el.querySelector('p').textContent = s.desc;
       var b = el.querySelector('.go');
@@ -261,7 +261,7 @@
       } else {
         // 다른 도메인(모니터): 주소창·로그에 남지 않도록 폼 POST 본문으로 전달
         var doc = (w || window).document, f = doc.createElement('form');
-        f.method = 'POST'; f.action = s.url.replace(/\/+$/, '') + '/auth/portal';
+        f.method = 'POST'; f.action = s.mode === 'post' ? (s.postUrl || s.url) : s.url.replace(/\/+$/, '') + '/auth/portal';
         var i = doc.createElement('input'); i.type = 'hidden'; i.name = 'pat'; i.value = pat;
         f.appendChild(i); doc.body.appendChild(f); f.submit();
       }
